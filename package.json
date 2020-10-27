@@ -1,6 +1,7 @@
 {
   "name": "1up_app",
   "version": "1.0.0",
+  "license": "UNLICENSED",
   "scripts": {
     "client": "cd client && yarn start",
     "server": "nodemon server.js",
