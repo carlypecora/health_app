@@ -4,6 +4,8 @@ const Main = () => {
 	const [error, setError] = useState('')
 	const [loggedIn, setLoggedIn] = useState(false)
 	const [loadingText, setLoadingText] = useState(null)
+	const [patientData, setPatientData] = useState(null)
+	const [nextLinkUrl, setNextLinkUrl] = useState('')
 
 	useEffect(() => {
 		callApi('/api/hello')
@@ -44,13 +46,49 @@ const Main = () => {
 
 	  const getPatientData = async () => {
 	  	callApi('/api/patient_data')
-	  		.then(res => console.log('RES!!!', res))
+	  		.then(res => {
+	  			console.log(res)
+	  			setPatientData(res)
+	  			getNextLink(res)
+	  		})
 	  		.catch(err => setError(err))
+	  }
+
+	  const handleNext = async (e) => {
+	  	
+	  }
+
+	  const renderPatientData = (data) => {
+	  	return data.entry.map((info, index) => {
+
+	  		return (
+	  			<div key={index}>
+	  				<h2>*******************************</h2>
+	  				<div dangerouslySetInnerHTML={{__html: info.resource.text.div}} />
+	  			</div>
+	  		)
+	  	})
+	  }
+
+	  const getNextLink = (data) => {
+	  	const nextLink = data.link.find(info => info.relation == "next")
+	  	if (nextLink) {
+	  		setNextLinkUrl(nextLink)
+	  	} else {
+	  		setNextLinkUrl('')
+	  	}
+
 	  }
 
 	 return (
 	 	<div>
-	 		{error ? <h2>An error has occurred. Please try again later.</h2> : null}
+	 		{error ? 
+	 			<h2>
+	 				An error has occurred. Please try again later.
+	 			</h2> 
+	 			: 
+	 			null
+	 		}
 	        {loggedIn ? 
 	        	<form onSubmit={handlePatientSubmit}>
 	        	  <strong>You are logged in. Please click to view patient info for Wilma Smart</strong> 
@@ -66,6 +104,13 @@ const Main = () => {
 		        </form>
 		    }
         <p>{loadingText}</p>
+        	{patientData && (
+        		<div>
+        			{renderPatientData(patientData)}
+        			<button>back</button>
+        			{nextLinkUrl ? <button onClick={handleNext}>next</button> : null}
+        		</div>
+        		)}
 	 	</div>
 	 )
 }
