@@ -1,55 +1,55 @@
 import React, { useEffect, useState } from 'react'
 
 const Main = () => {
-	const [response, setResponse] = useState('')
+	// const [response, setResponse] = useState('')
 	const [post, setPost] = useState('')
 	const [responseToPost, setResponseToPost] = useState('')
+	const [error, setError] = useState('')
 
 	useEffect(() => {
-		callApi()
-		.then(res => setResponse(res.express))
+		callApi('/api/hello')
+		.then(res => console.log(res.express))
       	.catch(err => console.log(err))
 	}, [])
 
-	const callApi = async () => {
-	    const response = await fetch('/api/hello');
+	const callApi = async (url) => {
+	    const response = await fetch(url);
+	    console.log('RESPONSE????', response)
 	    const body = await response.json();
 	    if (response.status !== 200) throw Error(body.message);
-	    
+	    console.log('BODY', body)
 	    return body;
 	  };
 
 	const handleSubmit = async e => {
 	    e.preventDefault();
-	    const response = await fetch('/api/world', {
-	      method: 'POST',
-	      headers: {
-	        'Content-Type': 'application/json',
-	      },
-	      body: JSON.stringify({ post }),
-	    });
-	    const body = await response.text();
+		callApi('/api/login')
+			.then(res => console.log(res))
+	      	.catch(err => console.log(err))
 	    
-	    setResponseToPost(body);
+	    // return body;
+	    // const response = await fetch('/api/login', {
+	    //   method: 'POST',
+	    //   headers: {
+	    //     'Content-Type': 'application/json',
+	    //   },
+	    // });
+	    // const body = await response.text();
 	  };
 
 	 return (
 	 	<div>
-			<p>{response}</p>
-		        <form onSubmit={handleSubmit}>
-		          <p>
-		            <strong>Post to Server:</strong>
-		          </p>
-		          <input
-		            type="text"
-		            value={post}
-		            onChange={e => setPost(e.target.value)}
-		          />
-		          <button type="submit">Submit</button>
-		        </form>
-	        <p>{responseToPost}</p>
+	        <form onSubmit={handleSubmit}>
+	          <p>
+	            <strong>Welcome! Login to view patient info</strong>
+	          </p>
+	      
+	          <button type="submit">LOGIN</button>
+	        </form>
+        <p>{responseToPost}</p>
 	 	</div>
 	 )
 }
+
 
 export default Main
