@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 const Main = () => {
 	const [error, setError] = useState('')
 	const [loggedIn, setLoggedIn] = useState(false)
-	const [loadingText, setLoadingText] = useState(null)
+	const [loadingText, setLoadingText] = useState('')
 	const [patientData, setPatientData] = useState(null)
-	const [nextLinkUrl, setNextLinkUrl] = useState('')
+	const [nextLinkUrlParams, setNextLinkUrlParams] = useState('')
 
 	useEffect(() => {
 		callApi('/api/hello')
@@ -22,8 +22,10 @@ const Main = () => {
 
 	const handleLoginSubmit = async e => {
 	    e.preventDefault();
+	    setLoadingText('Please wait, logging in')
 		callApi('/api/login')
 			.then(res => {
+				setLoadingText('')
 				if (!res) {
 					setError(true)
 					return
@@ -47,7 +49,8 @@ const Main = () => {
 	  const getPatientData = async () => {
 	  	callApi('/api/patient_data')
 	  		.then(res => {
-	  			console.log(res)
+	  			setLoadingText('')
+	  			console.log('FIRST RESPONSE', res)
 	  			setPatientData(res)
 	  			getNextLink(res)
 	  		})
@@ -55,7 +58,19 @@ const Main = () => {
 	  }
 
 	  const handleNext = async (e) => {
-	  	
+ 	    e.preventDefault();
+ 	    const response = await fetch('/api/next_page', {
+ 	      method: 'POST',
+ 	      headers: {
+ 	        'Content-Type': 'application/json',
+ 	      },
+ 	      body: JSON.stringify({ nextLinkUrlParams }),
+ 	    });
+ 	    const body = await response.text();
+ 	    const patientData = JSON.parse(body)
+ 	    console.log('PATIENT', patientData)
+ 	    setPatientData(patientData)
+ 	    getNextLink(patientData)
 	  }
 
 	  const renderPatientData = (data) => {
@@ -71,11 +86,14 @@ const Main = () => {
 	  }
 
 	  const getNextLink = (data) => {
-	  	const nextLink = data.link.find(info => info.relation == "next")
+	  	let nextLink = ''
+	  	if (data.link) {
+	  		nextLink = data.link.find(info => info.relation === "next")
+	  	}
 	  	if (nextLink) {
-	  		setNextLinkUrl(nextLink)
+	  		setNextLinkUrlParams(nextLink.url.split('?')[1])
 	  	} else {
-	  		setNextLinkUrl('')
+	  		setNextLinkUrlParams('')
 	  	}
 
 	  }
@@ -108,7 +126,7 @@ const Main = () => {
         		<div>
         			{renderPatientData(patientData)}
         			<button>back</button>
-        			{nextLinkUrl ? <button onClick={handleNext}>next</button> : null}
+        			{nextLinkUrlParams ? <button onClick={handleNext}>next</button> : null}
         		</div>
         		)}
 	 	</div>

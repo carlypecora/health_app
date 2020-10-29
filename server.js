@@ -77,10 +77,25 @@ app.get('/api/patient_data', (req, res) => {
 	      return response.json()
 		})
 		.then((json) => {
-			console.log('JSON', json)
 	        res.send(json);
 		})
 		.catch(err => console.log(err))
+});
+
+app.post('/api/next_page', (req, res) => {
+	 const headers = {
+	  	"Accept": "*/*",
+	  	"Authorization": `Bearer ${ACCESS_TOKEN}`
+	  }
+		  fetch(new URL('?' + req.body.nextLinkUrlParams, PATIENT_EVERYTHING_QUERY_URL), { method: 'GET', headers })
+		  .then((response) => {
+		      return response.json()
+			})
+			.then((json) => {
+				console.log('JSON', json)
+		        res.send(json);
+			})
+			.catch(err => console.log(err))
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
