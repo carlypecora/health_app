@@ -101,7 +101,7 @@ const Main = () => {
 		    )}
 		    {loggedIn && dataNotRetrieved && (
 		    	<form onSubmit={handlePatientSubmit}>
-	        	  <strong>You are logged in. Please click to view patient info for Wilma Smart</strong> 
+	        	  <strong>You are logged in. Please click to view patient info for Wilma Smart </strong> 
 	        	  <button type="submit">View Patient info</button>
 	        	</form>
 		    )}
