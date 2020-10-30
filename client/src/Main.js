@@ -5,7 +5,6 @@ const Main = () => {
 	const [loggedIn, setLoggedIn] = useState(false)
 	const [loadingText, setLoadingText] = useState('')
 	const [patientData, setPatientData] = useState(null)
-	const [nextLinkUrlParams, setNextLinkUrlParams] = useState('')
 
 	useEffect(() => {
 		callApi('/api/hello')
@@ -52,25 +51,23 @@ const Main = () => {
 	  			setLoadingText('')
 	  			console.log('FIRST RESPONSE', res)
 	  			setPatientData(res)
-	  			getNextLink(res)
 	  		})
 	  		.catch(err => setError(err))
 	  }
 
-	  const handleNext = async (e) => {
- 	    e.preventDefault();
+	  const handleNext = async (e, action) => {
+ 	    e.preventDefault(); 
  	    const response = await fetch('/api/next_page', {
  	      method: 'POST',
  	      headers: {
  	        'Content-Type': 'application/json',
  	      },
- 	      body: JSON.stringify({ nextLinkUrlParams }),
+ 	      body: JSON.stringify({ action }),
  	    });
  	    const body = await response.text();
  	    const patientData = JSON.parse(body)
  	    console.log('PATIENT', patientData)
  	    setPatientData(patientData)
- 	    getNextLink(patientData)
 	  }
 
 	  const renderPatientData = (data) => {
@@ -83,19 +80,6 @@ const Main = () => {
 	  			</div>
 	  		)
 	  	})
-	  }
-
-	  const getNextLink = (data) => {
-	  	let nextLink = ''
-	  	if (data.link) {
-	  		nextLink = data.link.find(info => info.relation === "next")
-	  	}
-	  	if (nextLink) {
-	  		setNextLinkUrlParams(nextLink.url.split('?')[1])
-	  	} else {
-	  		setNextLinkUrlParams('')
-	  	}
-
 	  }
 
 	 return (
@@ -125,8 +109,8 @@ const Main = () => {
         	{patientData && (
         		<div>
         			{renderPatientData(patientData)}
-        			<button>back</button>
-        			{nextLinkUrlParams ? <button onClick={handleNext}>next</button> : null}
+        			<button onClick={(e) => handleNext(e, "back")}>back</button>
+        			<button onClick={(e) => handleNext(e, "next")}>next</button>
         		</div>
         		)}
 	 	</div>
