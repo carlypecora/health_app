@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 const Main = () => {
 	const [error, setError] = useState('')
 	const [loggedIn, setLoggedIn] = useState(false)
+	const [dataNotRetrieved, setDataNotRetrieved] = useState(true)
 	const [loadingText, setLoadingText] = useState('')
 	const [patientData, setPatientData] = useState(null)
 
@@ -49,7 +50,7 @@ const Main = () => {
 	  	callApi('/api/patient_data')
 	  		.then(res => {
 	  			setLoadingText('')
-	  			console.log('FIRST RESPONSE', res)
+	  			setDataNotRetrieved(false)
 	  			setPatientData(res)
 	  		})
 	  		.catch(err => setError(err))
@@ -66,13 +67,11 @@ const Main = () => {
  	    });
  	    const body = await response.text();
  	    const patientData = JSON.parse(body)
- 	    console.log('PATIENT', patientData)
  	    setPatientData(patientData)
 	  }
 
 	  const renderPatientData = (data) => {
 	  	return data.entry.map((info, index) => {
-
 	  		return (
 	  			<div key={index}>
 	  				<h2>*******************************</h2>
@@ -91,20 +90,21 @@ const Main = () => {
 	 			: 
 	 			null
 	 		}
-	        {loggedIn ? 
-	        	<form onSubmit={handlePatientSubmit}>
-	        	  <strong>You are logged in. Please click to view patient info for Wilma Smart</strong> 
-	        	  <button type="submit">View Patient info</button>
-	        	</form>
-	        	:
-		        <form onSubmit={handleLoginSubmit}>
+	        {!loggedIn && (
+	        	<form onSubmit={handleLoginSubmit}>
 		          <p>
 		            <strong>Welcome! Login to view patient info</strong>
 		          </p>
 		      
 		          <button type="submit">LOGIN</button>
 		        </form>
-		    }
+		    )}
+		    {loggedIn && dataNotRetrieved && (
+		    	<form onSubmit={handlePatientSubmit}>
+	        	  <strong>You are logged in. Please click to view patient info for Wilma Smart</strong> 
+	        	  <button type="submit">View Patient info</button>
+	        	</form>
+		    )}
         <p>{loadingText}</p>
         	{patientData && (
         		<div>
